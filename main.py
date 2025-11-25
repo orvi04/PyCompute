@@ -1,38 +1,44 @@
 from tokeniser import Tokeniser
 from parser import Parser
-from ast_eval import eval
+# Import evaluate and the custom exception
+from ast_eval import eval, SymbolicResultError
+# We still need simplify if we want to clean up the final symbolic output
+from symbolic import simplify 
 
 def main():
-    print("--- Python Calculator CLI ---")
+    print("--- Python CAS Calculator ---")
     print("Type 'exit' or 'quit' to stop.")
     
     while True:
         try:
-            # 1. Get Input
-            text = input("calc> ")
-            
-            if text.lower() in ['exit', 'quit']:
+            text = input("calc> ").strip()
+            if text.lower() in ['exit', 'quit']: 
                 print("Goodbye!")
                 break
-            
-            if not text.strip():
-                continue
+            if not text: continue
 
-            # 2. Tokenise
             lexer = Tokeniser(text)
             tokens = lexer.tokenise()
             
-            # 3. Parse
             parser = Parser(tokens)
             ast = parser.parse()
             
-            # 4. Evaluate
+            # Attempt to evaluate everything
             result = eval(ast)
             
+            # If successful (no exception raised), print the number
             print(f"= {result}")
 
+        except SymbolicResultError as e:
+            # If we catch the custom error, the result is the symbolic formula tree (e.node).
+            
+            # We simplify the result one last time before displaying
+            final_formula = simplify(e.node) 
+            
+            print(f"= {final_formula}") 
+
         except Exception as e:
-            # Catch errors (Syntax, Math, etc.) and print them nicely
+            # Catch all other unexpected/real errors
             print(f"Error: {e}")
 
 if __name__ == "__main__":

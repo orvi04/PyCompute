@@ -1,4 +1,4 @@
-from ast_eval import Op, Literal
+from ast_eval import *
 
 class Tokeniser:
     def __init__(self, text):
@@ -17,7 +17,7 @@ class Tokeniser:
         tokens = []
         valid_ops = {member.value for member in Op}
 
-        while self.pos < len(self.text):
+        while self.current_char is not None:
 
             if self.current_char == " ":
                 self.advance()
@@ -32,6 +32,11 @@ class Tokeniser:
                 tokens.append(Literal(self.find_literal()))
                 continue
 
+            if self.current_char.isalpha():
+                name = self.find_identifier()
+                tokens.append(Variable(name))
+                continue
+
             raise ValueError(f"Unknown character '{self.current_char}' at position {self.pos}")
 
         return tokens
@@ -42,3 +47,10 @@ class Tokeniser:
             literal.append(self.current_char)
             self.advance()
         return float("".join(literal))
+
+    def find_identifier(self):
+        chars = []
+        while self.current_char is not None and self.current_char.isalnum():
+            chars.append(self.current_char)
+            self.advance()
+        return "".join(chars)

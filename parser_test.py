@@ -39,7 +39,7 @@ class TestASTEval(unittest.TestCase):
     def test_parses_exponents(self):
         expr = [Literal(4), Op.EXPONENT, Literal(2)]
         parser = Parser(expr)
-        self.assertEqual(parser.parse(), expr)
+        self.assertEqual(parser.parse(), Operator(Op.EXPONENT, Literal(4), Literal(2)))
 
     def test_can_parse_from_tokeniser(self):
         expr = "2 + 3 * 4"
